@@ -1,76 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
 </head>
-<body>
-    <div class="chat-container">
-        <div id="message-list" style="border: 1px solid black;width: 120px;">
-       <!-- list will contain messages -->
 
+<body>
+
+    <div id="chat-container">
+        <div id="message-list">
+            <!-- list will contain messages -->
         </div>
         <input type="text" id="message-input">
         <button id="send-message">Send</button>
     </div>
-</body>
-    
 
-
-<!-- to make connection with socket server -->
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
     <script>
-        //socket code in javascript
-        const socket = io.connect('http://localhost:3000')
-        const username=prompt("Enter your name");
+        // socket code in js.
 
-      // emit the username to the server
-        socket.emit("join",username);
-       
-        //get the element
-        const messageInput= document.getElementById("message-input");
-        const messageList= document.getElementById("message-list");
+        const socket = io.connect('http://localhost:3000');
+        const username = prompt('Enter your name');
+        // emit the username to the server
+        socket.emit("join", username);
+
+        // get the elements
+        const messageInput = document.getElementById("message-input");
+        const messageList = document.getElementById("message-list");
         const sendButton = document.getElementById("send-message");
-    
-        sendButton.addEventListener("click",function(){
-            //read the message from input and send to server
-            const message=messageInput.value; //assign value to message
-            
-            if(message){                      //if message is available then send to the server
 
-                socket.emit('new_message',message);
+        sendButton.addEventListener('click', function () {
+            // read the message from input and send to server.
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('new_message', message); // Emitting the message to the server
 
-                //add message to the list
-                const messageElement=document.createElement("div");  //create element to store new message
-                messageElement.innerText=username + ": " + message;
+                // add message to the list 
+                const messageElement = document.createElement("div");
+                messageElement.innerText = username + ": " + message;
                 messageList.appendChild(messageElement);
 
-                messageInput.value="";
+                //  Reset the value of textbox to empty
+                messageInput.value = '';
             }
-        })
+        });
 
-        //Display messages on UI
+        // Display messages on the UI.
 
-        socket.on('load_messages',(messages)=>{
-
-            messages.forEach(message=>{
-                const messageElement=document.createElement("div");
-                messageElement.innerText=new Date(message.timestamp).toDateString()  + " - " + message.username + ":" + message.message;
-                // messageElement.innerText=new Date(message.timestamp).toLocaleString() + " - " + message.username + ": " + message.message
+        socket.on('load_messages', (messages)=>{
+            messages.forEach(message => {
+                const messageElement = document.createElement("div");
+                messageElement.innerText = new Date(message.timestamp).toDateString() + "-" + message.username + ":" + message.message;
                 messageList.appendChild(messageElement);
-            })
+                    
+            });
         })
 
-//listen for broadcast message,and add it to the list
-socket.on('broadcast_message',(userMessage)=>{
-
-    const messageElement=document.createElement("div");
-    messageElement.innerText=userMessage.username+":"+userMessage.message;
-    messageList.appendChild(messageElement);
-})
-
+        // Listen for broadcast message, and add it to the list.
+        socket.on('broadcast_message', (userMessage) => {
+            const messageElement = document.createElement("div");
+            messageElement.innerText = userMessage.username + ":" + userMessage.message;
+            messageList.appendChild(messageElement);
+        })
 
     </script>
 </body>
+
 </html>

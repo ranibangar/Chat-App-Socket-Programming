@@ -46,6 +46,7 @@ io.on('connection',(socket)=>{
     message:message,
     timestamp:new Date()
    })
+   console.log("this is task",newChat);
    newChat.save();
         //broadcast this message to all the clients
         socket.broadcast.emit('broadcast_message',userMessage);
